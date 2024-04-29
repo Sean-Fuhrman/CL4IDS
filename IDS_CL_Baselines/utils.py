@@ -9,6 +9,7 @@ from avalanche.benchmarks.utils import _make_taskaware_tensor_classification_dat
 from sklearn.model_selection import train_test_split
 from avalanche.benchmarks import nc_benchmark, NCScenario, tensors_benchmark
 from avalanche.benchmarks import dataset_benchmark
+from imblearn.over_sampling import SMOTE
 
 
 EDGE_NORMAL_ATTACK = 7
@@ -41,6 +42,14 @@ def create_split_experiences(X, Y, class_order, n_experiences, name="Edge-IIoT")
         X_exp = X_exp[shuffle_idx]
         Y_exp = Y_exp[shuffle_idx]
         experiences.append((X_exp, Y_exp))
+    return experiences
+def add_SMOTE(experiences):
+    smote = SMOTE()
+    for i, (X, Y) in enumerate(experiences):
+        X = X.numpy()
+        Y = Y.numpy()
+        X, Y = smote.fit_resample(X, Y)
+        experiences[i] = (torch.tensor(X), torch.tensor(Y))
     return experiences
 
 def get_Edge_IIoT_benchmark(n_experiences=5, class_order=None, device='cpu'):
@@ -94,7 +103,7 @@ def get_X_IIoT_benchmark(n_experiences=5, class_order=None, device="cpu"):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
     train_experiences = create_split_experiences(X_train, Y_train, class_order, n_experiences, name="X-IIoT")
     test_experiences = create_split_experiences(X_test, Y_test, class_order, n_experiences, name="X-IIoT")
-  
+        
     benchmark = tensors_benchmark(
         train_tensors=train_experiences,
         test_tensors=test_experiences,
@@ -106,6 +115,71 @@ def get_X_IIoT_benchmark(n_experiences=5, class_order=None, device="cpu"):
     benchmark.classes_order =torch.tensor([c for classes in class_order for c in classes])
     return benchmark
 
+def get_SMOTE_Edge_IIoT_benchmark(n_experiences=5, class_order=None, device='cpu'):
+     # Load the dataset
+    X = np.load('../Datasets/Edge-IIoT-pre-processed/X.npy')
+    Y = np.load('../Datasets/Edge-IIoT-pre-processed/Y.npy')
+    
+    # Convert to tensors
+    X = torch.tensor(X)
+    Y = torch.argmax(torch.tensor(Y), dim=1)
+
+    if class_order is None:
+        class_order = [ [] for _ in range(n_experiences) ] 
+        for i in range(15):
+            if i == EDGE_NORMAL_ATTACK:
+                continue
+            class_order[i % n_experiences].append(i)
+    # Split the data
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+    train_experiences = create_split_experiences(X_train, Y_train, class_order, n_experiences, name="Edge-IIoT")
+    test_experiences = create_split_experiences(X_test, Y_test, class_order, n_experiences, name="Edge-IIoT")
+  
+    train_experiences = add_SMOTE(train_experiences)
+
+    benchmark = tensors_benchmark(
+        train_tensors=train_experiences,
+        test_tensors=test_experiences,
+        task_labels=list(range(len(train_experiences)))
+    )
+    benchmark.n_classes = 15
+    class_order[0] = [EDGE_NORMAL_ATTACK] + class_order[0]
+    benchmark.n_classes_per_exp = torch.tensor([len(classes) for classes in class_order])
+    benchmark.classes_order =torch.tensor([c for classes in class_order for c in classes])
+    return benchmark
+
+def get_SMOTE_X_IIoT_benchmark(n_experiences=5, class_order=None, device='cpu'):
+        # Load the dataset
+        X = np.load('../Datasets/X-IIoT-pre-processed/X.npy')
+        Y = np.load('../Datasets/X-IIoT-pre-processed/Y_1.npy')
+        
+        # Convert to tensors
+        X = torch.tensor(X).float()
+        Y = torch.tensor(Y).int()
+    
+        if class_order is None:
+            class_order = [ [] for _ in range(n_experiences) ] 
+            for i in range(19):
+                if i == X_NORMAL_ATTACK:
+                    continue
+                class_order[i % n_experiences].append(i)
+        # Split the data
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+        train_experiences = create_split_experiences(X_train, Y_train, class_order, n_experiences, name="X-IIoT")
+        test_experiences = create_split_experiences(X_test, Y_test, class_order, n_experiences, name="X-IIoT")
+
+        train_experiences = add_SMOTE(train_experiences)
+
+        benchmark = tensors_benchmark(
+            train_tensors=train_experiences,
+            test_tensors=test_experiences,
+            task_labels=list(range(len(train_experiences)))
+        )
+        benchmark.n_classes = 19
+        class_order[0] = [X_NORMAL_ATTACK] + class_order[0]
+        benchmark.n_classes_per_exp = torch.tensor([len(classes) for classes in class_order])
+        benchmark.classes_order =torch.tensor([c for classes in class_order for c in classes])
+        return benchmark
 
 def restrict_dataset_size(scenario, size: int):
     """
