@@ -46,7 +46,7 @@ for col in float_cols:
 df["anomaly_alert"] = df["anomaly_alert"].replace('-', 'FALSE')
 
 
-
+print(df['class1'][0:3])
 
 for col in df.columns:
     if df[col].dtype == 'object':
@@ -56,6 +56,14 @@ for col in df.columns:
         except:
             #Use categorical label encoder
             df[col] = le.fit_transform(df[col])
+            if col == 'class1':
+                #get classes to label dict
+                classes = le.classes_
+                print(classes)
+                classes = dict(zip(range(len(classes)), classes))
+                print(classes)
+print(df['class1'][0:3])
+p
 
 #Convert to float
 df = df.astype(float)
@@ -103,27 +111,11 @@ print(Y_3.shape)
 
 print(np.unique(Y_1, return_counts=True))
 
-X_train, X_test, Y_1_train, Y_1_test, Y_2_train, Y_2_test, Y_3_train, Y_3_test = train_test_split(X, Y_1, Y_2, Y_3, test_size=0.2, random_state=42)
+save_path = '../../Datasets/X-IIoT-pre-processed/'
 
-
-# %%
-#get validation set
-X_train, X_val, Y_1_train, Y_1_val, Y_2_train, Y_2_val, Y_3_train, Y_3_val = train_test_split(X_train, Y_1_train, Y_2_train, Y_3_train, test_size=0.2, random_state=42)
-
-save_path = '../../Datasets/X-IIoT-pre-processed/Custom PreProcessed/'
-
-np.save(save_path + 'X_train.npy', X_train)
-np.save(save_path + 'X_val.npy', X_val)
-np.save(save_path + 'X_test.npy', X_test)
-np.save(save_path + 'Y_1_train.npy', Y_1_train)
-np.save(save_path + 'Y_1_val.npy', Y_1_val)
-np.save(save_path + 'Y_1_test.npy', Y_1_test)
-np.save(save_path + 'Y_2_train.npy', Y_2_train)
-np.save(save_path + 'Y_2_val.npy', Y_2_val)
-np.save(save_path + 'Y_2_test.npy', Y_2_test)
-np.save(save_path + 'Y_3_train.npy', Y_3_train)
-np.save(save_path + 'Y_3_val.npy', Y_3_val)
-np.save(save_path + 'Y_3_test.npy', Y_3_test)
-
+np.save(save_path + 'X.npy', X)
+np.save(save_path + 'Y_1.npy', Y_1)
+np.save(save_path + 'Y_2.npy', Y_2)
+np.save(save_path + 'Y_3.npy', Y_3)
 
 # %%

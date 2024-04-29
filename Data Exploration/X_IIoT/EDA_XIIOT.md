@@ -9,6 +9,9 @@ Some columns that are numerical contain "-".
 
 QUESTION: is it ok to convert all "-" into 0? A column may already contain 0's and "-"s.
 
+
+class1_num_to_label = {0: 'BruteForce', 1: 'C&C', 2: 'Dictionary', 3: 'Discovering_resources', 4: 'Exfiltration', 5: 'Fake_notification', 6: 'False_data_injection', 7: 'Generic_scanning', 8: 'MQTT_cloud_broker_subscription', 9: 'MitM', 10: 'Modbus_register_reading', 11: 'Normal', 12: 'RDOS', 13: 'Reverse_shell', 14: 'Scanning_vulnerability', 15: 'TCP Relay', 16: 'crypto-ransomware', 17: 'fuzzing', 18: 'insider_malcious'}
+
 ## Class distribution 
 
 Class 1 - 19 classes (Same as preproccessed folder)

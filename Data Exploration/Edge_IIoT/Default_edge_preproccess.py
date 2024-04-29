@@ -116,12 +116,12 @@ Y_binary = df['Attack_label']
 
 #%%
 
-from imblearn.over_sampling import SMOTE
+# from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 
 def process_x_y(X, Y, label):
-    save_path = '../Datasets/Edge-IIoT-pre-processed/Default Preprocessing/'+label + "/"
+    save_path = '../../Datasets/Edge-IIoT-pre-processed/'
     X = X.copy()
     Y = Y.copy()
     X = X.astype(np.float32)   
@@ -132,64 +132,47 @@ def process_x_y(X, Y, label):
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
     #split the data
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+    # X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
 
     #Print size before SMOTE
-    print("Before SMOTE")
-    print(np.unique(Y_train, return_counts=True))
-    print(np.unique(Y_test, return_counts=True))
+    # print("Before SMOTE")
+    # print(np.unique(Y_train, return_counts=True))
+    # print(np.unique(Y_test, return_counts=True))
 
 
-    #SMOTE
-    smote = SMOTE(sampling_strategy='auto', random_state=42)
-    X_train, Y_train = smote.fit_resample(X_train,Y_train)
+    # #SMOTE
+    # smote = SMOTE(sampling_strategy='auto', random_state=42)
+    # X_train, Y_train = smote.fit_resample(X_train,Y_train)
 
     #Print size after SMOTE
-    print("After SMOTE")
-    print(np.unique(Y_train, return_counts=True))
-    print(np.unique(Y_test, return_counts=True))
+    # print("After SMOTE")
+    # print(np.unique(Y_train, return_counts=True))
+    # print(np.unique(Y_test, return_counts=True))
 
     #get validation set
-    X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=42)
+    # X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=42)
 
     #Shape before one hot encoding
     print("Before one hot encoding")
-    print(X_train.shape)
-    print(Y_train.shape)
-    print(X_val.shape)
-    print(Y_val.shape)
-    print(X_test.shape)
-    print(Y_test.shape)
+    print(X.shape)
+    print(Y.shape)
 
     #One hot encoding
     enc = OneHotEncoder()
-    Y_train = Y_train.reshape(-1,1)
-    Y_train = enc.fit_transform(Y_train).toarray()
-    Y_test = Y_test.reshape(-1,1)
-    Y_test = enc.fit_transform(Y_test).toarray()
-    Y_val = Y_val.reshape(-1,1)
-    Y_val = enc.fit_transform(Y_val).toarray()
+    Y = Y.reshape(-1,1)
+    Y = enc.fit_transform(Y).toarray()
 
     #Shape after one hot encoding
     print("After one hot encoding")
-    print(X_train.shape)
-    print(Y_train.shape)
-    print(X_val.shape)
-    print(Y_val.shape)
-    print(X_test.shape)
-    print(Y_test.shape)
-
+    print(X.shape)
+    print(Y.shape)
 
     #save the data
-    np.save(save_path + 'X_train.npy', X_train)
-    np.save(save_path + 'Y_train.npy', Y_train)
-    np.save(save_path + 'X_val.npy', X_val)
-    np.save(save_path + 'Y_val.npy', Y_val)
-    np.save(save_path + 'X_test.npy', X_test)
-    np.save(save_path + 'Y_test.npy', Y_test)
+    np.save(save_path + 'X.npy', X)
+    np.save(save_path + 'Y.npy', Y)
 
 process_x_y(X, Y_multi, 'Multi')
-process_x_y(X, Y_binary, 'Binary')
+# process_x_y(X, Y_binary, 'Binary')
 
 # %%
